@@ -174,7 +174,7 @@ def quantile_match_calib(
         hazard = haz
 
     # get corresponding hazard centroids
-    exp.assign_centroids(hazard)
+    exp.assign_centroids(hazard, threshold=100)
     haz_sel = hazard.intensity[:, exp.gdf.centr_HL].toarray()
     haz_sel_coord = hazard.centroids.coord[exp.gdf.centr_HL, :]
 
@@ -339,7 +339,8 @@ def quantile_match_calib(
                 ax.plot(
                     impf_em_flexBS.intensity,
                     impf_em_flexBS.mdd * 100,
-                    color="lightblue",
+                    color="tab:blue",
+                    linestyle="dashed",
                     label=f"{int(100*quantile)}%-quantile impact function",  # label=f"Emanuel-type Q{quantile}  power={params_flexBS['power']:.1f} (opt)",
                 )
             q_arrs.append(q_arr)
@@ -832,7 +833,11 @@ def plot_quant_match_impf(
     ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.15), ncol=2)
 
     ax2 = ax.twinx()
-    _ = ax2.hist(df_impf.index, bins=40, alpha=0.5, color="gray", log=True)
+    color_number_cells = "firebrick"
+    _ = ax2.hist(df_impf.index, bins=40, alpha=0.3, color=color_number_cells, log=True)
+    ax2.tick_params(axis='y', which='major', colors=color_number_cells)
+    ax2.tick_params(axis='y', which='minor', colors=color_number_cells)
+    ax2.yaxis.label.set_color(color_number_cells)
     ax2.set(ylabel="Number of cells")
     return fig
 

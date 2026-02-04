@@ -44,6 +44,7 @@ def plot_cantonal_imp(
     return_ax=False,
     bin_params=None,
     show_init_valid=True,
+    figsize_scale=1.0,
 ):
     """plot of forecast-modeled impact per canton using pie plots
 
@@ -111,7 +112,7 @@ def plot_cantonal_imp(
         valid_time, init_time = "", ""
 
     fig, ax, cbax = plot_standard_map(
-        data_source=data_source, valid_time=valid_time, init_time=init_time
+        data_source=data_source, valid_time=valid_time, init_time=init_time, figsize=(10*figsize_scale, 6.25*figsize_scale)
     )
     plot_canton(
         ax, canton="all", edgecolor="gray", facecolor="none", linewidth=0.5, zorder=2
@@ -218,6 +219,7 @@ def plot_imp_hist(
     data_source="",
     return_ax=False,
     show_init_valid=True,
+    figsize_scale=1.0,
 ):
     """plot of forecast-modeled impact histogram for Switzerland
 
@@ -235,6 +237,7 @@ def plot_imp_hist(
                         quantiles. Defaults to ('orangered', 'gray').
         data_source (str, optional): forecast data source. Defaults to ''.
         return_ax (bool, optional): to return fig with axis . Defaults to False.
+        figsize_scale (float, optional): scale factor for figure size. Defaults to 1.0.
 
     Returns:
         fig: figure of forecast-modeled impact histogram for Switzerland
@@ -277,8 +280,9 @@ def plot_imp_hist(
         valid_time, init_time = "", ""
     # fig, ax, cbax = plot_standard_map_n2o(data_source=data_source, valid_time=valid_time, init_time = init_time, prj = None)
     fig, ax, cbax = plot_standard_map(
-        data_source=data_source, valid_time=valid_time, init_time=init_time, prj=None
+        data_source=data_source, valid_time=valid_time, init_time=init_time, prj=None, figsize=(10*figsize_scale, 6.25*figsize_scale)
     )
+
     cbax.remove()  # hide cbax
     ax.set_position([0, 0.2, 1.1, 0.8])
     ax.set_xscale("log")
@@ -470,6 +474,77 @@ def plot_ranges_largest_forecasts(
     )
     plt.ylim([-1, len(mins)])
     plt.grid(axis="y", alpha=0.3, which="both")
+
+    return fig
+
+# ensemble ranges of largest forecasts
+def plot_ranges_largest_forecasts_ch_and_cantons(
+    estimated_large, dates_large, OOM_threhsold, threshold_prediction, estimated_cantons, reported_cantons
+):
+    quantiles_ch, qunatiles_4cantons = {}, {}
+    for estimated, quantiles in zip([estimated_large, estimated_cantons], [quantiles_ch, qunatiles_4cantons]):
+        for q, qmin, qmax in zip(["q0595", "q00100", "q2575"], [0.05, 0.00, 0.25], [0.95, 1.0, 0.75]):
+            quantiles[q] = np.array(
+                ensemble_range(
+                    np.round(estimated, decimals=0),
+                    qmin,
+                    qmax,
+                    threshold_values=threshold_prediction,
+                )
+            ).T
+
+    fig = plt.figure(figsize=(6, 14))
+
+    # Use GridSpec for fine control of spacing
+    gs = fig.add_gridspec(1, 2, wspace=0)  # wspace=0 removes gap between panels
+
+    # Create left and right panels with shared y-axis
+    ax_left = fig.add_subplot(gs[0, 0])
+    ax_right = fig.add_subplot(gs[0, 1], sharey=ax_left, sharex=ax_left)
+
+    for ax, quantiles in zip([ax_left, ax_right], [quantiles_ch, qunatiles_4cantons]):
+        mins, maxs = quantiles["q00100"].T
+        q05, q95 = quantiles["q0595"].T
+        q25, q75 = quantiles["q2575"].T
+        y_pos = range(len(mins))
+
+        # Draw line for each min-max range
+        for y, mn, mx in zip(y_pos, mins, maxs):
+            ax.hlines(y, mn, mx, color="LightGray", alpha=0.5, linewidth=5)
+        for y, mn, mx in zip(y_pos, q05, q95):
+            ax.hlines(y, mn, mx, color="Gray", alpha=0.7, linewidth=5)
+        for y, mn, mx in zip(y_pos, q25, q75):
+            ax.hlines(y, mn, mx, color="k", linewidth=5)
+
+    ax_left.vlines(np.log10(OOM_threhsold), 0, len(mins), linewidth=1, linestyles="dotted")
+
+    ax_right.scatter(
+        np.log10(np.clip(reported_cantons, a_min=threshold_prediction, a_max=None)),
+        y_pos,
+        marker="|",
+        linewidth=2,
+        zorder=10,
+        color="red",
+    )
+
+    ax_left.set_yticks(y_pos, [str(date)[:10] for date in dates_large], fontsize=9)
+    ax_left.set_xticks(
+        [np.log10(threshold_prediction), 0, 1, 2, 3, 4], ["<1", 1, 10, 100, 1000, "10k"]
+    )
+    ax_left.set_ylim([-1, len(mins)])
+    for ax in [ax_left, ax_right]:
+        ax.grid(axis="y", alpha=0.3, which="both")
+    
+    ax_left.set_title("All cantons")
+    ax_right.set_title("Validation cantons")
+
+    # Hide duplicate y-tick labels on the right panel
+    plt.setp(ax_right.get_yticklabels(), visible=False)
+
+    # Optional: tighten layout without gaps
+    fig.subplots_adjust(wspace=0)
+    fig.supxlabel("Estimated number of damaged buildings", fontsize=12, y=0.07)
+
 
     return fig
 
