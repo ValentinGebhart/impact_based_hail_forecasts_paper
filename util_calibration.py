@@ -835,8 +835,8 @@ def plot_quant_match_impf(
     ax2 = ax.twinx()
     color_number_cells = "firebrick"
     _ = ax2.hist(df_impf.index, bins=40, alpha=0.3, color=color_number_cells, log=True)
-    ax2.tick_params(axis='y', which='major', colors=color_number_cells)
-    ax2.tick_params(axis='y', which='minor', colors=color_number_cells)
+    ax2.tick_params(axis="y", which="major", colors=color_number_cells)
+    ax2.tick_params(axis="y", which="minor", colors=color_number_cells)
     ax2.yaxis.label.set_color(color_number_cells)
     ax2.set(ylabel="Number of cells")
     return fig
@@ -886,10 +886,8 @@ def fit_emanuel_impf_to_emp_data(
         tuple: Parameters, optimizer object, and impact function
     """
     if not emp_df.index.name:
-        raise ValueError(
-            "Careful, emp_df.index has no name. Double check if the \
-                            index corresponds to the intensity unit!"
-        )
+        raise ValueError("Careful, emp_df.index has no name. Double check if the \
+                            index corresponds to the intensity unit!")
 
     def weighted_MSE(**param_dict):
         try:

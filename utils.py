@@ -25,7 +25,6 @@ import geopandas as gpd
 from scipy import sparse
 import warnings
 
-
 #############################
 ### util functions for io ###
 #############################

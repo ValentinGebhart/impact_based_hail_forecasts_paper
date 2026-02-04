@@ -16,7 +16,6 @@ from climada import CONFIG
 
 from utils import ensemble_range
 
-
 # parameters for plotting
 cantons_extent_x = [-110000, 75000]
 cantons_extent_y = [-60000, 120000]
@@ -112,7 +111,10 @@ def plot_cantonal_imp(
         valid_time, init_time = "", ""
 
     fig, ax, cbax = plot_standard_map(
-        data_source=data_source, valid_time=valid_time, init_time=init_time, figsize=(10*figsize_scale, 6.25*figsize_scale)
+        data_source=data_source,
+        valid_time=valid_time,
+        init_time=init_time,
+        figsize=(10 * figsize_scale, 6.25 * figsize_scale),
     )
     plot_canton(
         ax, canton="all", edgecolor="gray", facecolor="none", linewidth=0.5, zorder=2
@@ -280,7 +282,11 @@ def plot_imp_hist(
         valid_time, init_time = "", ""
     # fig, ax, cbax = plot_standard_map_n2o(data_source=data_source, valid_time=valid_time, init_time = init_time, prj = None)
     fig, ax, cbax = plot_standard_map(
-        data_source=data_source, valid_time=valid_time, init_time=init_time, prj=None, figsize=(10*figsize_scale, 6.25*figsize_scale)
+        data_source=data_source,
+        valid_time=valid_time,
+        init_time=init_time,
+        prj=None,
+        figsize=(10 * figsize_scale, 6.25 * figsize_scale),
     )
 
     cbax.remove()  # hide cbax
@@ -477,13 +483,23 @@ def plot_ranges_largest_forecasts(
 
     return fig
 
+
 # ensemble ranges of largest forecasts
 def plot_ranges_largest_forecasts_ch_and_cantons(
-    estimated_large, dates_large, OOM_threhsold, threshold_prediction, estimated_cantons, reported_cantons
+    estimated_large,
+    dates_large,
+    OOM_threhsold,
+    threshold_prediction,
+    estimated_cantons,
+    reported_cantons,
 ):
     quantiles_ch, qunatiles_4cantons = {}, {}
-    for estimated, quantiles in zip([estimated_large, estimated_cantons], [quantiles_ch, qunatiles_4cantons]):
-        for q, qmin, qmax in zip(["q0595", "q00100", "q2575"], [0.05, 0.00, 0.25], [0.95, 1.0, 0.75]):
+    for estimated, quantiles in zip(
+        [estimated_large, estimated_cantons], [quantiles_ch, qunatiles_4cantons]
+    ):
+        for q, qmin, qmax in zip(
+            ["q0595", "q00100", "q2575"], [0.05, 0.00, 0.25], [0.95, 1.0, 0.75]
+        ):
             quantiles[q] = np.array(
                 ensemble_range(
                     np.round(estimated, decimals=0),
@@ -516,7 +532,9 @@ def plot_ranges_largest_forecasts_ch_and_cantons(
         for y, mn, mx in zip(y_pos, q25, q75):
             ax.hlines(y, mn, mx, color="k", linewidth=5)
 
-    ax_left.vlines(np.log10(OOM_threhsold), 0, len(mins), linewidth=1, linestyles="dotted")
+    ax_left.vlines(
+        np.log10(OOM_threhsold), 0, len(mins), linewidth=1, linestyles="dotted"
+    )
 
     ax_right.scatter(
         np.log10(np.clip(reported_cantons, a_min=threshold_prediction, a_max=None)),
@@ -534,7 +552,7 @@ def plot_ranges_largest_forecasts_ch_and_cantons(
     ax_left.set_ylim([-1, len(mins)])
     for ax in [ax_left, ax_right]:
         ax.grid(axis="y", alpha=0.3, which="both")
-    
+
     ax_left.set_title("All cantons")
     ax_right.set_title("Validation cantons")
 
@@ -544,7 +562,6 @@ def plot_ranges_largest_forecasts_ch_and_cantons(
     # Optional: tighten layout without gaps
     fig.subplots_adjust(wspace=0)
     fig.supxlabel("Estimated number of damaged buildings", fontsize=12, y=0.07)
-
 
     return fig
 
