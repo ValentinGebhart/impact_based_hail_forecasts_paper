@@ -3,7 +3,7 @@
 This repository contains the code used to derive the results of the paper: Gebhart V., Schmid T., Mühlhofer E., Villiger L., Bresch D. N. (2025) User-tailored impact-based hail forecasts in Switzerland, (not yet submitted).
 
 
-Publication status: not yet submitted
+Publication status: accepted
 
 Contact: Valentin Gebhart (valentin.gebhart@usys.ethz.ch)
 

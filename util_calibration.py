@@ -375,6 +375,9 @@ def quantile_match_calib(
                 plot_spatial_distribution_of_bs_samples(
                     haz_sel, imp_sel, bs_samples, n_members, haz_sel_coord, ax
                 )
+            
+        fig.savefig(f"{save_path}_plot.png", dpi=300, bbox_inches="tight")
+
 
         return (
             params,
